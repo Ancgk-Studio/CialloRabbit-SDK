@@ -3,7 +3,7 @@
 ![](https://socialify.git.ci/Ancgk-Studio/CialloRabbit-SDK/image?description=1&font=Bitter&forks=1&issues=1&language=1&name=1&pulls=1&stargazers=1&theme=Light)
 
 ### Ciallo～(∠・ω< )⌒★
-[文档](https://github.com/Ancgk-Studio/CialloRabbit-SDK/blob/dev/docs/index.md)
+[文档](docs/index.md)
 
 </div>
 

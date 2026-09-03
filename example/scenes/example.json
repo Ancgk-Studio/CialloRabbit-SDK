@@ -1,71 +1,78 @@
 {
-  "uuid": "567e89ab-cdef-1234-5678-9abcdef12345",
+  "uuid": "3a23a729-6c9e-427d-a269-32bd48bfb6da",
   "name": "ExtendedSampleScript",
-  "version": "24-01-15",
+  "version": "2.0.0",
+  "date": "2026-09-03",
   "describe": "This is an extended sample script demonstrating various features.",
-  "date": "24-01-15",
   "story": {
     "startScene": {
       "type": "renderer",
       "label": ["log"],
       "action": {
         "method": "initializeGame",
-        "val": {
-          "difficulty": "medium",
-          "playerName": "Hero"
-        }
+        "val": "normal"
       },
       "next": {
-        "type": "scene",
-        "console": true,
         "sleep": 3000,
-        "duration": 8000,
-        "to": "@main*dialogueScene"
+        "duration": 0,
+        "select": [
+          { "to": "@example*cutsceneScene" }
+        ]
       },
       "dialog": {
-        "title": "@common*WelcomeTitle",
-        "text": "@story*WelcomeText",
+        "title": "@common*welcomeTitle",
+        "text": "@story*welcomeText",
         "sleep": 1500
       },
       "audio": [
         {
           "type": "bgm",
-          "channel": "backgroundMusic",
+          "channel": "bgmMain",
           "path": "bgm",
-          "res": "introBGM",
+          "res": "introBgm",
           "sleep": 1000,
           "loop": true
+        },
+        {
+          "type": "effect",
+          "channel": "startEffect",
+          "path": "effects",
+          "res": "startChime",
+          "sleep": 500,
+          "loop": false
         }
       ],
       "scene": [
         {
-          "name": "background",
+          "name": "startBg",
           "keep": true,
           "layer": [
             {
               "type": "image",
-              "sleep": 2000,
               "res": {
                 "name": "startBG",
                 "path": "textures/backgrounds"
               },
+              "position": [0, 0],
               "alpha": 0.9,
-              "rotate": 0,
-              "position": ["60%", "60%", 150, 250],
               "transition": {
                 "start": [
-                  {
-                    "duration": 3000,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "duration": 3000,
-                    "alpha": 0
-                  }
+                  { "duration": 3000, "alpha": 1 }
                 ]
               }
+            },
+            {
+              "type": "gradientBlock",
+              "res": {
+                "console": [0, 0, 1280, 720],
+                "colors": [
+                  [0.6, "rgba(0, 0, 0, 1)"],
+                  [0.4, "rgba(255, 255, 255, 1)"]
+                ]
+              },
+              "position": [1280, 720, 0, 0],
+              "alpha": 0.4,
+              "cover": "source-over"
             },
             {
               "type": "text",
@@ -77,23 +84,41 @@
                 "stroke": [2, "#000000"],
                 "shadow": [10, 5, 5, "#888888"]
               },
-              "alpha": 0,
-              "rotate": 0,
-              "position": [200, 50, 400, 300],
+              "position": [500, 80, 390, 300],
               "transition": {
                 "start": [
-                  {
-                    "duration": 2000,
-                    "alpha": 1
-                  }
+                  { "bezier": [0.2, 0.1, 0.8, 0.9], "duration": 2000, "alpha": 1 }
                 ],
                 "end": [
-                  {
-                    "duration": 2000,
-                    "alpha": 0
-                  }
+                  { "duration": 2000, "alpha": 0 }
                 ]
               }
+            }
+          ]
+        }
+      ]
+    },
+    "cutsceneScene": {
+      "type": "renderer",
+      "label": ["log"],
+      "next": {
+        "duration": 0,
+        "select": [
+          { "to": "@example*dialogueScene" }
+        ]
+      },
+      "scene": [
+        {
+          "name": "startBg",
+          "keep": false
+        },
+        {
+          "name": "openingVideo",
+          "video": [
+            {
+              "path": "media",
+              "res": "opening",
+              "loop": false
             }
           ]
         }
@@ -103,40 +128,39 @@
       "type": "renderer",
       "label": ["log"],
       "next": {
-        "title": "Dialogue Branch",
-        "type": "scene",
-        "console": false,
-        "sleep": 0,
+        "title": "dialogueBranch",
+        "sleep": -1,
         "select": [
           {
-            "title": "Choice 1",
-            "to": "@main*path1Scene"
+            "text": "@common*choiceChallenge",
+            "eval": "score >= 10",
+            "to": "@example*path1Scene"
           },
           {
-            "title": "Choice 2",
-            "to": "@main*path2Scene"
+            "text": "@common*choiceNormal",
+            "to": "@example*path2Scene"
           }
         ]
       },
       "dialog": {
-        "title": "@story*NPCName",
-        "text": "@story*DialogueContent",
+        "title": "Elaina",
+        "text": "Dy000001",
         "sleep": 1000,
         "endHide": true
       },
       "audio": [
         {
           "type": "voice",
-          "channel": "NPCVoice",
+          "channel": "npcVoice",
           "path": "voices",
-          "res": "dialogueVoice",
+          "res": "npcHello",
           "sleep": 1000,
           "loop": false
         }
       ],
       "scene": [
         {
-          "name": "NPC",
+          "name": "npcSprite",
           "keep": false,
           "layer": [
             {
@@ -144,35 +168,23 @@
               "align": 4,
               "sleep": 1500,
               "res": {
-                "name": "NPCSprite",
+                "name": "npc001",
                 "path": "character"
               },
               "alpha": 0,
               "position": [150, 200, 300, 400],
               "cover": "source-over",
               "childrenCover": "source-over",
-              "parent": null,
               "transition": {
                 "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 0
-                  }
+                  { "bezier": [0.2, 0.1, 0.8, 0.9], "duration": 2000, "alpha": 1 }
                 ]
               },
               "children": [
                 {
                   "type": "frame",
                   "res": {
-                    "name": "NPCSprite",
+                    "name": "npc001",
                     "path": "character"
                   },
                   "parent": "eyes",
@@ -182,98 +194,25 @@
                     "cycle": [1000, 3000],
                     "class": "eyes:open"
                   }
+                },
+                {
+                  "type": "frame",
+                  "res": {
+                    "name": "npc001",
+                    "path": "character"
+                  },
+                  "parent": "mouth",
+                  "animation": {
+                    "plays": ["loop"],
+                    "class": "mouth:talk",
+                    "bind": {
+                      "trigger": "audio",
+                      "type": "volume",
+                      "object": "npcVoice"
+                    }
+                  }
                 }
               ]
-            }
-          ]
-        }
-      ]
-    },
-    "choiceScene": {
-      "type": "renderer",
-      "label": ["log"],
-      "next": {
-        "type": "scene",
-        "console": true,
-        "condition": [
-          {
-            "eval": "playerChoice === 1",
-            "to": "@main*path1Scene"
-          },
-          {
-            "eval": "playerChoice === 2",
-            "to": "@main*path2Scene"
-          }
-        ]
-      },
-      "dialog": {
-        "title": "Make a Choice",
-        "text": "Choose your path wisely.",
-        "sleep": 500,
-        "endHide": false
-      },
-      "audio": [
-        {
-          "type": "effect",
-          "channel": "choiceEffect",
-          "path": "effects",
-          "res": "choiceSound",
-          "sleep": 1000,
-          "loop": false
-        }
-      ],
-      "scene": [
-        {
-          "name": "text",
-          "layer": [
-            {
-              "type": "block",
-              "res": "#888888",
-              "alpha": 0.7,
-              "position": [400, 200, 200, 300],
-              "transition": {
-                "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 1500,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 1500,
-                    "alpha": 0
-                  }
-                ]
-              }
-            },
-            {
-              "type": "text",
-              "align": 4,
-              "sleep": 1500,
-              "res": {
-                "text": "1. Choice 1\\n2. Choice 2",
-                "font": [24, "normal", "normal", "#FFFFFF", "Arial"]
-              },
-              "alpha": 0.7,
-              "position": [200, 100, 250, 320],
-              "transition": {
-                "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 1500,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 1500,
-                    "alpha": 0
-                  }
-                ]
-              }
             }
           ]
         }
@@ -287,22 +226,24 @@
         "val": 10
       },
       "next": {
-        "type": "scene",
+        "sleep": 1000,
         "duration": 6000,
-        "to": "@main*endingScene"
+        "select": [
+          { "to": "@example*endingScene" }
+        ]
       },
       "dialog": {
-        "title": "Good Choice",
-        "text": "You've chosen the right path!",
+        "title": "@common*goodChoiceTitle",
+        "text": "@story*goodChoiceText",
         "sleep": 1000,
         "endHide": true
       },
       "audio": [
         {
           "type": "bgm",
-          "channel": "path1BGM",
+          "channel": "pathBgm",
           "path": "bgm",
-          "res": "path1BGM",
+          "res": "path1Bgm",
           "loop": true
         },
         {
@@ -316,7 +257,7 @@
       ],
       "scene": [
         {
-          "name": "path",
+          "name": "path1Bg",
           "keep": false,
           "layer": [
             {
@@ -330,18 +271,10 @@
               "position": ["70%", "70%", 100, 200],
               "transition": {
                 "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
+                  { "bezier": [0.2, 0.1, 0.8, 0.9], "duration": 2000, "alpha": 1 }
                 ],
                 "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 0
-                  }
+                  { "duration": 2000, "alpha": 0 }
                 ]
               }
             }
@@ -357,22 +290,25 @@
         "val": 5
       },
       "next": {
-        "type": "scene",
-        "duration": 6000,
-        "to": "@main*endingScene"
+        "select": [
+          {
+            "to": "$unlockAchievement = 'firstClear'",
+            "back": "@example*endingScene"
+          }
+        ]
       },
       "dialog": {
-        "title": "Tough Choice",
-        "text": "This path will be a bit challenging.",
+        "title": "@common*toughChoiceTitle",
+        "text": "@story*toughChoiceText",
         "sleep": 1000,
         "endHide": true
       },
       "audio": [
         {
           "type": "bgm",
-          "channel": "path2BGM",
+          "channel": "pathBgm",
           "path": "bgm",
-          "res": "path2BGM",
+          "res": "path2Bgm",
           "loop": true
         },
         {
@@ -386,31 +322,36 @@
       ],
       "scene": [
         {
-          "name": "path",
+          "name": "path2Fx",
+          "keep": false,
           "layer": [
             {
-              "type": "image",
-              "sleep": 1000,
-              "res": {
-                "name": "path2BG",
-                "path": "textures/paths"
-              },
+              "type": "block",
+              "res": "#1a1a2e",
+              "alpha": 0.7,
+              "position": [1280, 720, 0, 0]
+            },
+            {
+              "type": "particle",
+              "sleep": 500,
+              "res": "partFirework",
               "alpha": 0.9,
-              "position": ["70%", "70%", 100, 200],
+              "rotate": 0,
+              "position": [200, 200, 540, 260]
+            },
+            {
+              "type": "text",
+              "align": 8,
+              "sleep": 1500,
+              "res": {
+                "text": "Stay determined...",
+                "font": [24, "normal", "normal", "#FFFFFF", "Arial"]
+              },
+              "alpha": 0.8,
+              "position": [300, 60, 800, 620],
               "transition": {
                 "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 0
-                  }
+                  { "duration": 1500, "alpha": 1 }
                 ]
               }
             }
@@ -424,25 +365,32 @@
       "action": {
         "method": "displayScore"
       },
+      "next": {
+        "duration": 0,
+        "select": [
+          { "to": "@example*cleanupScene" }
+        ]
+      },
       "dialog": {
-        "title": "Game Over",
-        "text": "Thanks for playing!",
+        "title": "@common*gameOverTitle",
+        "text": "@story*thanksText",
         "sleep": 1000,
         "endHide": false
       },
       "audio": [
         {
           "type": "bgm",
-          "channel": "endingBGM",
+          "channel": "endingBgm",
           "path": "bgm",
-          "res": "endingBGM",
+          "res": "endingBgm",
           "sleep": 0,
           "loop": true
         }
       ],
       "scene": [
         {
-          "name": "ending",
+          "name": "endingBg",
+          "keep": false,
           "layer": [
             {
               "type": "image",
@@ -455,18 +403,7 @@
               "position": ["80%", "80%", 50, 100],
               "transition": {
                 "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
+                  { "duration": 2000, "alpha": 1 }
                 ]
               }
             },
@@ -479,26 +416,36 @@
                 "stroke": [3, "#000000"],
                 "shadow": [15, 7, 7, "#888888"]
               },
-              "alpha": 0.5,
-              "position": [300, 100, 300, 350],
+              "alpha": 0,
+              "position": [400, 80, 440, 560],
               "transition": {
                 "start": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 1
-                  }
-                ],
-                "end": [
-                  {
-                    "bezier": [0.2, 0.1, 0.8, 0.9],
-                    "duration": 2000,
-                    "alpha": 0
-                  }
+                  { "bezier": [0.2, 0.1, 0.8, 0.9], "duration": 2000, "alpha": 1 }
                 ]
               }
             }
           ]
+        }
+      ]
+    },
+    "cleanupScene": {
+      "type": "command",
+      "action": {
+        "method": "saveProgress"
+      },
+      "next": {
+        "select": [
+          { "to": "@example*startScene" }
+        ]
+      },
+      "audio": [
+        {
+          "type": "stop",
+          "channel": "endingBgm"
+        },
+        {
+          "type": "stop",
+          "channel": "bgmMain"
         }
       ]
     }

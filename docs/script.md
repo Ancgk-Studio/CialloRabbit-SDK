@@ -3,7 +3,8 @@
 {
     "uuid": "...",
     "name": "...",
-    "version": "yy-mm-dd",
+    "version":"1.0.0",
+    "date": "yyyy-mm-dd",
     "describe": "...",
     "story": {
         ...
@@ -16,8 +17,8 @@
 | `uuid` | `uuid字符串` | 脚本的唯一uuid |  |
 | `name` | `名称字符串` | 脚本名 |  |
 | `version` | `i.i.i 格式的版本号` | 版本号 |  |
+| `date` | `yyyy-mm-dd格式的日期` | 发布日期 |  |
 | `describe` | `描述字符串` | 描述 |  |
-| `date` | `yy-mm-dd格式的日期` | 发布日期 |  |
 | `story` | `{" [storyId] ": {...}}` | <b><a href="#main:story">剧情主内容</a></b> |  |
 
 <br />
@@ -41,8 +42,7 @@
 场景可以是以下类型
 | 值 | 说明 |
 | --- | --- |
-| `renderer` | 此场景是渲染画面场景 |
-| `video` | 此场景是视频画面场景 |
+| `renderer` | 此场景是渲染画面的场景 |
 | `command` | 此场景仅执行命令,不渲染场景 |
 
 <br />
@@ -57,11 +57,12 @@
 <br />
 
 ### story.action <span id="main:story:action">执行程序对象</span>
-执行一个js的内部程序,并传入参数或条件
+在场景开始时执行一个js的内部程序,并传入参数
+参数在js的函数使用第一个传参接收,只能传入一个参数
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
 | `method` | `方法名` | 在js对象里定义的方法名 | 不包含括号 |
-| `val` | `传入参数` | 调用方法后传入的参数 | 非必须 |
+| `val` | `传入参数` | 调用方法后传入的参数,只支持字符串和数字 | 非必须 |
 
 <br />
 
@@ -69,82 +70,81 @@
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
 | `title` | `标题字符串` | 此参数仅用于备注分支的标题 | 非必须 |
-| `type` | `scene` | <b><a href="#main:story:next:type">下一个场景处理类型</a></b> |  |
-| `mode` | `default` `select` | <b><a href="#main:story:next:mode">处理模式</a></b> | <font color="red">废弃</font> |
-| `console` | `true` `false` | <b><a href="#main:story:next:console">是否允许控制</a></b> | 非必须 |
-| `sleep` | `毫秒` | <b><a href="#main:story:next:console">延迟允许操作时间</a></b> | 非必须 |
+| `sleep` | `毫秒` | <b><a href="#main:story:next:sleep">延迟允许操作时间</a></b> | 非必须 |
 | `duration` | `毫秒` | <b><a href="#main:story:next:duration">本场景持续时间</a></b> | 非必须 |
-| `to` | `"@[脚本名]*[场景id]"` | <b><a href="#main:story:next:to">下一个场景目标</a></b> |  |
 | `select` | `"select":[{...}]` | <b><a href="#main:story:next:select">选择分支对象</a></b> |  |
-| `condition` | `"condition":[{...}]` | <b><a href="#main:story:next:condition">条件分支对象</a></b> |  |
-
-<br />
-
-#### story.next.type <span id="main:story:next:type">下一个场景处理类型</span>
-下一个场景目标的执行类型 
-| 值 | 说明 |
-| --- | --- |
-| `scene` | 继续播放剧情场景 |
-| `game` | 调用小游戏 |
-| `function` | 调用程序方法 |
-
-<br />
-
-#### story.next.mode <span id="main:story:next:mode">处理模式</span>
-跳转到下个场景的处理模式,此参数<font color='red'>废弃</font>,后续将通过判断是否存在`select`对象或者`console`或者`condition`参数决定模式
-| 值 | 说明 |
-| --- | --- |
-| `default` | 直接过渡到下一个场景 |
-| `select` | 显示剧情分支选择菜单 |
-| `condition` | 使用条件判断 |
-
-<br />
-
-#### story.next.console <span id="main:story:next:console">是否允许控制</span>
-允许用户操作或者直接跳过本次场景,当`mode`为`select`时此参数决定是否要用户操作后才显示选择菜单 
-如果为真,当存在`select`对象时用户需要操作一次才会显示选择菜单否则此场景播放结束后会立即显示选择菜单
-
-默认值:`true`
 
 <br />
 
 #### story.next.sleep <span id="main:story:next:sleep">延迟允许用户操作</span>
-在这个时间后用户才能操作,`console`为`true`有效
+当值为`-1`时,如果<a href="#main:story:next:select">`select`</a>只有一个选择,则需要播放完本场景,途中不允许用户跳过,如果<a href="#main:story:next:select">`select`</a>有多个选择,则需要播放完本场景并由用户操作才会显示选择界面
+当值为`0`或不设置该字段时,如果<a href="#main:story:next:select">`select`</a>只有一个选择,用户可以通过操作跳过本场景,如果<a href="#main:story:next:select">`select`</a>有多个选择,则用户可以跳过本场景直接操作就能显示选择画面
+当值为`大于0的整数`时,不论<a href="#main:story:next:select">`select`</a>有多少个选择,都需要用户在等待此毫秒时间后才能够进行接下来的操作
+
+| 值 | <a href="#main:story:next:select">`select`</a>只有一个选择 | <a href="#main:story:next:select">`select`</a>有多个选择 |
+| --- | --- | --- |
+| `-1` | 需要播放完本场景,途中不允许用户跳过 | 需要播放完本场景并由用户操作才会显示选择界面 |
+| `0` | 用户可以通过操作跳过本场景 | 用户可以跳过本场景直接操作就能显示选择画面 |
+| `大于0的整数` | 需要用户在等待此毫秒时间后才能够进行接下来的操作 | 需要用户在等待此毫秒时间后才能够进行接下来的操作 |
 
 默认值:`0`
 
 <br />
 
 #### story.next.duration <span id="main:story:next:duration">本场景持续时间</span>
-本场景在此时间后,自动进入下一个场景,不论用户有没有操作以及过渡是否播放完
-当`type`为`select`时,此参数无效
+该字段可以将上面<a href="#main:story:next:sleep">`sleep`</a>字段中描述的,本需要用户操作才会进行的行为变为自动进行,但如果<a href="#main:story:next:sleep">`sleep`</a>字段大于0,本字段的计时将从延迟结束后开始计时
+当值为`-1`或不设置该字段时,禁用持续时间
+当值为`0`时,在本场景<a href="#main:story:next:sleep">`sleep`</a>结束后且所有动画播放完毕自动进入下一个场景,如果<a href="#main:story:next:select">`select`</a>有多个选择,则自动显示选择界面
+当值为`大于0的整数`时,在<a href="#main:story:next:sleep">`sleep`</a>结束后加上此字段毫秒时间后自动进入下一个场景,不论用户有没有操作以及动画是否播放完,如果<a href="#main:story:next:select">`select`</a>有多个选择,则自动显示选择界面
 
-默认值:`0`
+| 值 | <a href="#main:story:next:select">`select`</a>只有一个选择 | <a href="#main:story:next:select">`select`</a>有多个选择 |
+| --- | --- | --- |
+| `-1` | - | - |
+| `0` | 本场景延迟和所有动画播放完毕后自动进入下一个场景 | 本场景延迟和所有动画播放完毕后自动显示选择界面 |
+| `大于0的整数` | 在延迟和该字段毫秒时间后自动进入下一个场景 | 在延迟和该字段毫秒时间后自动显示选择界面 |
 
-<br />
-
-#### <span>story.next.to</span> <span id="main:story:next:to">下一个场景目标</span>
-以场景描述格式`"@[脚本名]*[场景id]"`表示下一个场景的目标
-例如`"@main*test"`表示脚本名为`main`,场景id为`test`
-此参数和`select`对象只能存在一个,当同时存在时`select`不生效
+默认值:`-1`
 
 <br />
 
 #### story.next.select <span id="main:story:next:select">选择分支对象</span> 
+所有场景分支必须至少有一个处理方式,如果无,请调用自定义函数结束场景并进入结算画面或回到主页
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
-| `title` | `选项标题字符串` | 显示在选择菜单的标题 |  |
-| `to` | `"@[脚本名]*[场景id]"` | 选项对应的场景目标 | <b><a href="#main:story:next:to">格式与to相同</a></b> |
+| `text` | `选项标题字符串` | <b><a href="#main:story:next:select:text">选项标题文本</a></b> | 非必须 |
+| `eval` | `判断语句` | <b><a href="#main:story:next:select:eval">条件判断</a></b> | 非必须 |
+| `to` | `"@[脚本名]*[场景id]"` `$function` `#gamename` | <b><a href="#main:story:next:select:to">选项行为</a></b> |  |
+| `back` | `"@[脚本名]*[场景id]"` | <b><a href="#main:story:next:select:back">选项返回</a></b> | 非必须 |
 
 <br />
 
-#### story.next.condition <span id="main:story:next:condition">条件分支对象</span> 
-| key | 值 | 说明 | 备注 |
-| --- | --- | --- | --- |
-| `eval` | `判断语句` | 使用js的判断语句格式 |  |
-| `to` | `"@[脚本名]*[场景id]"` | 选项对应的场景目标 | <b><a href="#main:story:next:to">格式与to相同</a></b> |
+##### story.next.select.text <span id="main:story:next:select:text">选项标题文本</span>
+设置该选项在选择菜单的标题文本,格式与<b><a href="#main:story:dialog:title">对话框的标题文本</a></b>一样
+当只有一个选项时,不会显示选择菜单,此字段也无效
 
-<br />
+默认值:无
+
+##### story.next.select.eval <span id="main:story:next:select:eval">条件判断</span>
+使用js的判断语句格式,如`char === 1`,变量名必须在manifest.json声明
+如果条件不满足则不会显示该选项,如果有多个带有条件的选项则会自动转入下一个选项的判断中直到最后一个选项,如果所有选项的条件均不满足那么程序将会停止在本场景无法继续
+如果有多个带有条件的选项都同时满足条件,则会显示选择菜单让用户选择,如果所有选项中,只有一个满足条件或只有一个无条件,程序当作只有一个选项处理
+
+默认值:无
+
+##### <span>story.next.select.to</span> <span id="main:story:next:select:to">选项行为</span>
+选项对应的场景目标或执行自定义函数或进入小游戏模式如:
+`@test*start`表示进入名为test.json的脚本的start场景
+`$charAdd = 'cocoa'`表示执行名为charAdd的自定义函数并传入字符串"cocoa",只能传入一个参数,`$charAdd`表示不传入参数直接执行
+`#coffeeShop`表示进入已经注册名为coffeeShop的小游戏场景界面
+
+默认值:无
+
+##### story.next.select.back <span id="main:story:next:select:back">选项返回</span>
+当`to`用于执行自定义函数后或进入小游戏结束后,将进入该字段设定的场景,`@test*start`表示执行完毕后进入名为test.json的脚本的start场景
+如果不设置此字段,程序将停止在本场景无法继续
+<font color='red'>注意:程序会在执行函数完毕后才进入下一个场景,如果下一个场景有条件判断,那么判断的变量值可能是函数修改过后的</font>
+
+默认值:无
 
 ### story.dialog <span id="main:story:dialog">对话框对象</span>
 | key | 值 | 说明 | 备注 |
@@ -183,7 +183,8 @@
 
 #### story.dialog.endHide <span id="main:story:dialog:endHide">结束隐藏对话框</span>
 在本场景结束后是否隐藏对话框
-当`mode`为`select`时,此配置将决定选择框是覆盖在对话框上面还是只显示选择框
+
+当<b><a href="#main:story:next:select">选择分支对象</a></b>有多个选择分支时,此配置将决定选择框是覆盖在对话框上面还是只显示选择框
 
 默认值:`false`
 
@@ -192,7 +193,7 @@
 ### story.audio <span id="main:story:audio">音频对象</span>
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
-| `type` | `bgm` `voice` `effect` `stop` | <b><a href="#main:story:audio:type">音频类型</a></b> | |
+| `type` | `bgm` `voice` `effect` `stop` | <b><a href="#main:story:audio:type">音频类型</a></b> |  |
 | `channel` | `"[音频通道名称]"` | <b><a href="#main:story:audio:channel">音频通道</a></b>  |  |
 | `path` | `路径` |  <b><a href="#main:story:audio:path">音频路径</a></b>  |  |
 | `res` | `文件名` | <b><a href="#main:story:audio:res">音频文件名</a></b> |  |
@@ -204,6 +205,9 @@
 
 #### story.audio.type <span id="main:story:audio:type">音频类型</span>
 决定着音频的处理类型(比如音量等)
+
+<b>注:当为`stop`时,<a href="#main:story:audio:path">音频路径</a>也不是必须的</b>
+
 | 值 | 说明 |
 | --- | --- |
 | `bgm` | 背景音乐 |
@@ -222,14 +226,14 @@
 
 #### story.audio.path <span id="main:story:audio:path">音频路径</span>
 音频所在相对于`sounds/[码率]/`目录内的文件夹名
-例如填写`bgm`就是相当于文件位于`sounds/bgm/`目录内
+例如填写`bgm`就是相当于文件位于`sounds/[码率]/bgm/`目录内
 <font color='red'>程序会根据用户设置的码率使用不同码率文件夹下的文件</font>
-
+<font color='red'>如果用户设置的码率没有对应的文件夹,程序会默认使用`320k`码率文件夹里的mp3文件,所以请至少确保有`320k`码率的文件</font>
 <br />
 
 #### story.audio.res <span id="main:story:audio:res">音频文件名</span>
 音频的文件名,不包括后缀名
-<font color='red'>程序会根据用户设置的码率,使用不同的后缀名，参考以下表</font>
+<font color='red'>程序会根据用户设置的码率,使用不同的后缀名,参考以下表</font>
 | 码率 | 后缀 |
 | --- | --- |
 | `CBR 128k` | mp3 |
@@ -260,7 +264,7 @@
 | --- | --- | --- | --- |
 | `name` | `场景名字符串` | <b><a href="#main:story:scene:name">场景名称</a></b> |  |
 | `keep` | `true` `false` | <b><a href="#main:story:scene:keep">保持画面</a></b> | 非必须 |
-| `inherit` | `true` `false` | <b><a href="#main:story:scene:inherit">继承画面</a></b> | <font color='red'>废弃</font> |
+| `video` | `"video": [{...}]` | <b><a href="#main:story:scene:video">媒体画面对象</a></b> | 非必须,仅当<a href="#main:story:scene:layer">layer</a>不存在时有效 |
 | `layer` | `"layer": [{...}]` | <b><a href="#main:story:scene:layer">图层对象</a></b> | 非必须 |
 
 <br />
@@ -272,35 +276,36 @@
 
 #### story.scene.keep <span id="main:story:scene:keep">保持画面</span>
 此参数告诉渲染器在入场过渡播放完或整个场景结束后不清除此场景的图层,也不播放退场过渡动画
-<b>注意:当脚本的最后一个场景播放结束后,渲染器无论如何都会清屏,请确保要保留的场景都在一个脚本里使用</b>
+如果一个曾经被设置为保持画面的场景在下一个剧情中被设置为不再保持(即场景没有图层且本字段设置为`false`)时,场景会立即在该剧情被清除
+<b>注意:当脚本的最后一个场景播放结束后,渲染器无论如何都会清屏,新的脚本不再保留该场景,请确保要保留的场景都在一个脚本里使用</b>
 
-默认值:当<b><a href="#main:story:scene:layer">layer</a></b>对象不存在时为`true`,否则为`false`
+默认值:当<b><a href="#main:story:scene:layer">layer</a></b>对象且<b><a href="#main:story:scene:video">video</a></b>不存在时为`true`,否则为`false`
 
 <br />
 
-### story.scene.video <span id="main:story:video">媒体画面对象</span>
-画面场景对象是多个图层的集合,当<b><a href="#main:story:type">场景类型</a></b>为`video`时有效
+#### story.scene.video <span id="main:story:scene:video">媒体画面对象</span>
+媒体画面可以将视频文件全屏显示在游戏画面中,视频会全屏覆盖底下的其他画面,请注意场景层的顺序
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
-| `path` | `路径` | <b><a href="#main:story:video:path">资源路径</a></b> |  |
-| `res` | `文件名` | <b><a href="#main:story:video:res">资源名</a></b> |  |
-| `loop` | `true` `false` | <b><a href="#main:story:video:loop">循环播放</a></b> | 非必须 |
+| `path` | `路径` | <b><a href="#main:story:scene:video:path">资源路径</a></b> |  |
+| `res` | `文件名` | <b><a href="#main:story:scene:video:res">资源名</a></b> |  |
+| `loop` | `true` `false` | <b><a href="#main:story:scene:video:loop">循环播放</a></b> | 非必须 |
 
 <br />
 
-#### story.scene.video.path <span id="main:story:video:path">资源路径</span>
+##### story.scene.video.path <span id="main:story:scene:video:path">资源路径</span>
 资源所在相对于`assets/`目录内的文件夹名,可以是目录的子目录
 例如media表示资源在`assets/media/`内
 当脚本位于`creative_workshop`中的项目时,`assets`也是相对于项目内部的文件夹而言
 
 <br />
 
-#### story.scene.video.res <span id="main:story:video:res">资源名</span>
+##### story.scene.video.res <span id="main:story:scene:video:res">资源名</span>
 视频的文件名,不带后缀名,只支持mp4格式
 
 <br />
 
-#### story.scene.video.loop <span id="main:story:video:loop">循环播放</span>
+##### story.scene.video.loop <span id="main:story:scene:video:loop">循环播放</span>
 决定视频是否循环播放
 如果用户使用自动播放模式,视频仍然只会播放一次就进入下一个场景
 
@@ -309,9 +314,11 @@
 <br />
 
 # story.scene.layer <span id="main:story:scene:layer">图层对象</span> 
+如果场景是保持之前的画面,以下大部分内容都是不必要的,通常你只要关注场景要更新的字段即可
+比如之前的场景已经指定了人物立绘,在新的场景需要挪动一下位置,那就只写position或者transition对象就可以了,别的都是没有必要的
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
-| `type` | `block` `gradientBlock` `text` `image` `sprite` `frame` `template` | <b><a href="#main:story:scene:layer:type">图层类型</a></b> |  |
+| `type` | `block` `gradientBlock` `text` `image` `sprite` `frame` `particle` `template` | <b><a href="#main:story:scene:layer:type">图层类型</a></b> |  |
 | `align` | `0-8整数` | <b><a href="#main:story:scene:layer:align">对齐方式</a></b> | 非必须 |
 | `sleep` | `毫秒` | <b><a href="#main:story:scene:layer:sleep">延迟渲染时间</a></b> | 非必须 |
 | `res` | `文件名` `十六进制颜色` `"res":{...}` | <b><a href="#main:story:scene:layer:res">资源名</a></b> |  |
@@ -324,7 +331,6 @@
 | `transition` | `"transition":{"start":[{...}],"end":[{...}]}` | <b><a href="#main:story:scene:layer:transition">过渡对象</a></b> | 非必须 |
 | `animation` | `"animation":{...}` | <b><a href="#main:story:scene:layer:animation">动画对象</a></b> | 非必须 |
 | `children` | `"children":[{...}]` | <b><a href="#main:story:scene:layer:children">子级图层对象</a></b> | 非必须 |
-|  |  |  |  |
 
 <br />
 
@@ -368,7 +374,7 @@
 | `text` | <b><a href="#main:story:scene:layer:res:text">文字样式对象</a></b> `"res":{...}` |
 | `image` | <b><a href="#main:story:scene:layer:res:image">图像信息对象</a></b> `"res":{...}` |
 | `sprite` | <b><a href="#main:story:scene:layer:res:sprite">精灵对象</a></b> `"res":{...}` |
-| `frame` | <b><a href="#main:story:scene:layer:res:sprite">精灵对象</a></b> `"res":{...}` |
+| `frame` | 与<b><a href="#main:story:scene:layer:res:sprite">精灵对象</a></b>一致 |
 | `particle` | 粒子动画配置的json文件名,不包含后缀名,例如`part001` |
 | `template` | 模板的json文件名,不包含后缀名,例如`tp001` |
 
@@ -380,7 +386,7 @@
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
 | `console` | `"console":[x1, y1, x2, y2]` | <b><a href="#main:story:scene:layer:res:gradientBlock:console">渐变线位置</a></b> |  |
-| `colors` | `"color":[[...]]` | <b><a href="#main:story:scene:layer:res:gradientBlock:colors">渐变色列表</a></b> |  |
+| `colors` | `"colors":[[...]]` | <b><a href="#main:story:scene:layer:res:gradientBlock:colors">渐变色列表</a></b> |  |
 
 <br />
 
@@ -391,9 +397,9 @@
 <br />
 
 #### story.scene.layer.res.gradientBlock.colors <span id="main:story:scene:layer:res:gradientBlock:colors">渐变色列表</span>
-此对象是一个数组,内部必须包含至少两个颜色数组,每个颜色数组包含一个该色条在渐变快中的占比以及argb颜色
-每个色条均会以均匀的渐变方式过渡到下一个色条直到渐变结束
-例如`"color": [[0.6, "rgba(255, 255, 255, 0)"],[0.4, "rgba(255, 255, 255, 1)"]]`表示绘制一个黑渐变到白的渐变块,其中黑占%60,白占40%
+此对象是一个数组,内部必须包含至少两个颜色数组,每个颜色数组包含一个该色条在渐变块中的色标(占比)以及rgba颜色
+每个色条均会以均匀的渐变方式从渐变线开始方向向结束方向过渡到下一个色条直到渐变结束
+例如`"colors": [[0.6, "rgba(0, 0, 0, 1)"],[0.4, "rgba(255, 255, 255, 1)"]]`表示绘制一个黑渐变到白的渐变块,其中黑占渐变的60%,白占40%
 
 
 ### story.scene.layer.res.text <span id="main:story:scene:layer:res:text">文字样式对象</span>
@@ -417,8 +423,8 @@
 第四位是字体颜色,只支持十六进制颜色,如`#ffff00`
 第五位是字体名称,该字体必须是在css中声明的
 <b>注意:所有样式必须声明</b>
-例如`[24, normal, normal, "#000000", "Arial"]`表示字体大小`24px`,字粗和格式均为`默认`,`颜色黑`,字体为`Arial`
-例如`[45, "bold", "italic", "#000000", "宋体"]`表示字体大小`48px`,`粗体`+`斜体字`,`颜色黑`,字体为`宋体`
+例如`[24, "normal", "normal", "#000000", "Arial"]`表示字体大小`24px`,字粗和格式均为`默认`,`颜色黑`,字体为`Arial`
+例如`[45, "bold", "italic", "#000000", "宋体"]`表示字体大小`45px`,`粗体`+`斜体字`,`颜色黑`,字体为`宋体`
 
 <br />
 
@@ -470,7 +476,7 @@
 
 <br />
 
-### story.scene.layer.res.image.sprite / story.scene.layer.res.image.frame <span id="main:story:scene:layer:res:sprite">精灵对象</span>
+### story.scene.layer.res.sprite <span id="main:story:scene:layer:res:sprite">精灵对象</span>
 在画面上绘制带有精灵图像的特定块或一组动画
 
 | key | 值 | 说明 | 备注 |
@@ -478,11 +484,11 @@
 | `name` | `字符串` | 精灵json文件名,不包含后缀名,例如`chr001` |  |
 | `path` | `路径` | <b><a href="#main:story:scene:layer:res:image:path">资源路径</a></b> |  |
 | `lang` | `"lang":[...]` | <b><a href="#main:story:scene:layer:res:image:lang">可用语言列表</a></b> | 非必须 |
-| `block` | `[部件名]` | <b><a href="#main:story:scene:layer:res:image:block">精灵部件</a></b> | 非必须 |
+| `block` | `[部件名]` | <b><a href="#main:story:scene:layer:res:sprite:block">精灵部件</a></b> | 非必须 |
 
 <br />
 
-#### story.scene.layer.res.image.block <span id="main:story:scene:layer:res:image:block">精灵部件</span>
+#### story.scene.layer.res.sprite.block <span id="main:story:scene:layer:res:sprite:block">精灵部件</span>
 使用在精灵的JSON文件中声明的部件名作为图像
 渲染器会将该组件的position所框定的区域绘制出来
 此配置在图层类型为`frame`时会固定显示第一帧,如果需要播放帧动画请不要设置
@@ -518,14 +524,14 @@
 图层的覆盖关系,支持canvas的`globalCompositeOperation值`,用来决定该图层如何覆盖在底层的图层上,完整参考[https://www.cnblogs.com/fangsmile/p/10132920.html](https://www.cnblogs.com/fangsmile/p/10132920.html),常用值参考如下
 | 值 | 说明 |
 | --- | --- |
-| `source-over` | 在底层图层上显示本图层 |
+| `source-over` | 在底层图层上叠加显示本图层 |
 | `source-atop` | 在底层图层上显示本图层,但本图层只显示在底层图层的范围内 |
 | `source-in` | 在底层图层上显示本图层,但只显示本图层和底层图层重叠后的部分 | 
 | `source-out` | 在底层图层上显示本图层,但只显示本图层和底层图层不重叠的部分 |
-| `destination-over` | 在底层图层下显示本图层 |
-| `destination-atop` | 在底层图层下显示本图层,但本图层只显示在底层图层的范围内 |
-| `destination-in` | 在底层图层下显示本图层,但只显示本图层和底层图层重叠后的部分 |
-| `destination-out` | 在底层图层下显示本图层,但只显示本图层和底层图层不重叠的部分 |
+| `destination-over` | 在本层图层上叠加显示底下图层 |
+| `destination-atop` | 将底层图层显示在本图层上,但只保留与本图层重叠的部分 |
+| `destination-in` | 将底层图层显示在本图层上,但只显示本图层和底层图层重叠后的部分 |
+| `destination-out` | 将底层图层显示在本图层上,但只显示本图层和底层图层不重叠的部分 |
 
 默认值:`source-over`
 
@@ -539,7 +545,7 @@
 <br />
 
 ## story.scene.layer.parent <span id="main:story:scene:layer:parent">继承父级名</span>
-让本子级图层继承父级`sprite`子类的位置和大小,如父级`sprite`存在`eyes`子类时,将此值设置为`eyes`可以直接让图层直接覆盖在父级对应的子类的位置中且可将<a href="#main:story:scene:layer:position">图层位置</a>省略
+让本子级图层继承父级`sprite`子类的位置和大小,如父级`sprite`存在`eyes`子类时,将此值设置为`eyes`可以直接让图层覆盖在父级对应的子类的位置中且可将<a href="#main:story:scene:layer:position">图层位置</a>省略
 而且在此参数生效的情况下设置<a href="#main:story:scene:layer:position">图层位置</a>,图像的位置也是相对于该设置的子类的位置进行偏移
 <b>仅当父级图层的<a href="#main:story:scene:layer:type">图层类型</a>为`sprite`时有效</b>
 
@@ -548,14 +554,14 @@
 <br />
 
 ## story.scene.layer.transition <span id="main:story:scene:layer:transition">过渡对象</span>
-包含一个`in`对象和`out`对象,用来设定入场和离场的动画关键帧,关键帧对象包含参数如下
-<b>注意:当`out`里的动画对象中没有任何关键帧参数时,程序仍然会等待`in`关键帧的持续时间和延迟时间结束后才会继续播放后面的动画</b>
+包含一个`start`数组和`end`数组,用来设定入场和离场的动画关键帧,关键帧数组包含参数如下
+<b>注意:当`end`数组中没有任何关键帧参数时,程序仍然会等待`start`关键帧的持续时间和延迟时间结束后才会继续播放后面的动画</b>
 
 | key | 值 | 说明 | 备注 |
 | --- | --- | --- | --- |
 | `bezier` | `"bezier":[p1x, p1y, p2x, p2y]` | <b><a href="#main:story:scene:layer:transition:bezier">三次贝塞尔曲线过渡</a></b> | 非必须 |
 | `sleep` | `毫秒` | <b><a href="#main:story:scene:layer:transition:sleep">延迟</a></b> | 非必须 |
-| `duration` | `毫秒` | <b><a href="#main:story:scene:layer:transition:name">持续时间</a></b> | 非必须 |
+| `duration` | `毫秒` | <b><a href="#main:story:scene:layer:transition:duration">持续时间</a></b> | 非必须 |
 | `rotate` | `0-360整数` | <b><a href="#main:story:scene:layer:rotate">旋转角度</a></b> | 非必须 |
 | `alpha` | `0-1浮点数` | <b><a href="#main:story:scene:layer:alpha">透明度</a></b> | 非必须 |
 | `position` | `"position":[w, h, x, y]` | <b><a href="#main:story:scene:layer:position">图层位置</a></b> | 非必须 |
@@ -607,13 +613,13 @@
 
 ### story.scene.layer.animation.plays <span id="main:story:scene:layer:animation:plays">播放次数</span>
 控制一组动画播放的次数,包含一个数组,其中可以是整数的次数,也可以是`loop` `only`这种字符串
-比如`[6]`表示一组动画播放6次后停止在最后一帧,又比如`["loop"]`表示如同GIF一样一直循环一组动画,还要`["only"]`表示一组动画播放一次后停止在最开始的第一帧
+比如`[6]`表示一组动画播放6次后停止在最后一帧,又比如`["loop"]`表示如同GIF一样一直循环一组动画,还有`["only"]`表示一组动画播放一次后停止在最开始的第一帧
 注意:`[1]`和`["only"]`的区别在于停止时的位置
 
 <br />
 
 ### story.scene.layer.animation.cycle <span id="main:story:scene:layer:animation:cycle">循环间隔</span>
-一组动画在播放到最后一帧后,间隔多久会播放下一次,包含一个数组,可以是一个整数的毫秒时间,也可以是两个整数的毫秒时间任何由程序决定这个区间内随机的数值
+一组动画在播放到最后一帧后,间隔多久会播放下一次,包含一个数组,可以是一个整数的毫秒时间,也可以是两个整数的毫秒时间,由程序决定这个区间内随机的数值
 比如`[1000]`表示循环间隔固定`1000`毫秒,又比如`[1000,3000]`表示循环间隔在最小为`1000`毫秒,最大为`3000`毫秒之间随机决定一个值(一般用于眨眼的动画)
 
 默认值:`[0]`
@@ -641,10 +647,11 @@ res中使用的json文件包含动画的map名称,格式为`[部件名]:[分类�
 
 对于不同人物的音高范围可以不同,此时可以使用`range`分别设置对应帧和音高范围的绑定,比如[50,70,90]表示把三帧分别绑定到音高的`50%`,`70%`,`90%`上。此参数可以省略,如果不设置,则按照帧的数量均匀分配到每个百分比上
 
-完整例子:`{"trigger": "audio", "type": "volume", "channel": "Elaina", "range": [50, 70, 90]}`
+完整例子:`{"trigger": "audio", "type": "volume", "object": "Elaina", "range": [50, 70, 90]}`
 
 注意:当场景播放完毕且图层没有被保持时,绑定会自动解除
 
-
-
 <br />
+
+## story.scene.layer.children <span id="main:story:scene:layer:children">子级图层对象</span>
+在此图层上叠加一个子级图层,其内部字段与<b><a href="#main:story:scene:layer">图层对象</a></b>基本一致
